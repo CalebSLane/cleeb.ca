@@ -32,10 +32,16 @@ x-security: &security
   pull_policy: always
   privileged: false
   init: true
+  restart: always
 
 x-build-args: &build-args
   PROJECT_NAME: ${PROJECT_NAME}
   ENV: ${ENV}
+  APP_WEB_SUBDOMAIN: ${APP_WEB_SUBDOMAIN}
+  API_WEB_SUBDOMAIN: ${API_WEB_SUBDOMAIN}
+  AUTH_WEB_SUBDOMAIN: ${AUTH_WEB_SUBDOMAIN}
+  STATIC_APP_WEB_SUBDOMAIN: ${STATIC_APP_WEB_SUBDOMAIN}
+  VAULT_WEB_SUBDOMAIN: ${VAULT_WEB_SUBDOMAIN}
   ENABLE_GATSBY_REFRESH_ENDPOINT: ${ENABLE_GATSBY_REFRESH_ENDPOINT}
   PUBLIC_STATIC_APP_WEB_ADDRESS: ${PUBLIC_STATIC_APP_WEB_ADDRESS}
   PUBLIC_APP_WEB_ADDRESS: ${PUBLIC_APP_WEB_ADDRESS}
@@ -138,7 +144,7 @@ services:
     healthcheck: *healthcheck
 
   staticapp.web.staticapp:
-    # <<: *security # secure
+    <<: *security # secure
     container_name: staticapp
     build:
       context: staticapp
@@ -146,11 +152,6 @@ services:
       target: ${STATIC_APP_TARGET}
       args: *build-args
     # image: staticapp:latest
-    depends_on:
-      vault.web.vault:
-        condition: service_healthy
-      proxy:
-        condition: service_healthy
     networks:
       - frontend
     env_file:
